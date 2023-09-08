@@ -1,0 +1,15 @@
+@charset "UTF-8";
+
+#fileMainContainer {
+	width: 100%;
+	height: 400px;
+}
+
+#fileMainContent {
+	margin: auto;
+	margin-top: 50px;
+	width: 500px;
+	height: 100%;
+	font-weight: bold;
+	text-align: center;
+}
