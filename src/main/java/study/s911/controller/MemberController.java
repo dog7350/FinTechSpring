@@ -1,11 +1,14 @@
 package com.care.root.controller;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,13 +29,14 @@ public class MemberController implements LoginSession {
 		return "member/login";
 	}
 	@PostMapping("logChk")
-	public String logChk(@RequestParam String id, @RequestParam String pw, RedirectAttributes rs) {
+	public String logChk(@RequestParam String id, @RequestParam String pw, @RequestParam(required = false, defaultValue = "off") String autoLogin, RedirectAttributes rs) {
 		int result = ms.logChk(id, pw);
 		
 		if (result == 0) {
 			// LoginSession.LOGIN이 가지고 있는 값은 login이므로 세션 이름은 "login" 생성
 			// session.setAttribute(LOGIN, id);
 			rs.addAttribute("id", id);
+			rs.addAttribute("autoLogin", autoLogin);
 			return "redirect:successLogin";
 		}
 		
@@ -40,19 +44,36 @@ public class MemberController implements LoginSession {
 	}
 	
 	@GetMapping("successLogin")
-	public String successLogin(@RequestParam String id, HttpSession session) {
+	public String successLogin(@RequestParam String id, @RequestParam String autoLogin, HttpSession session, HttpServletResponse res) {
+		if (autoLogin.equals("on")) {
+			int limitTime = 60 * 60 * 24 * 90; // 90일 설정
+			Cookie loginCookie = new Cookie("loginCookie", session.getId()); // session.getId() > 고유한 값
+			loginCookie.setPath("/"); // 모든 URL 경로에 쿠키 적용
+			loginCookie.setMaxAge(limitTime);
+			res.addCookie(loginCookie);
+			
+			ms.keepLogin(session.getId(), id);
+		}
+		
 		session.setAttribute(LOGIN, id);
 		return "member/successLogin";
 	}
 	
 	@GetMapping("logout")
-	public String logout(HttpSession session) {
+	public String logout(HttpSession session, @CookieValue(value = "loginCookie", required = false) Cookie cookie, HttpServletResponse res) {
+		if (cookie != null) {
+			cookie.setMaxAge(0);
+			res.addCookie(cookie);
+			ms.keepLogin("nan", (String) session.getAttribute(LOGIN));
+		}
+		
 		session.invalidate();
 		return "redirect:login";
 	}
 	
 	@GetMapping("list")
 	public String list(Model model) {
+		System.out.println("Controller LIST Action");
 		model.addAttribute("list", ms.getList());
 		
 		return "member/list";

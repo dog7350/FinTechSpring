@@ -12,6 +12,7 @@
 		<form action="${ contextPath }/member/logChk" method="post">
 			<input type="text" name="id"><br>
 			<input type="text" name="pw"><br>
+			<input type="checkbox" name="autoLogin">자동 로그인&nbsp;&nbsp;
 			<input type="submit" value="로그인"><br>
 			<a href="${ contextPath }/member/register_view">회원가입</a>
 		</form>

@@ -1,6 +1,7 @@
 package com.care.root.mybatis;
 
 import java.util.List;
+import java.util.Map;
 
 import com.care.root.dto.MemberDTO;
 
@@ -10,4 +11,8 @@ public interface MemberMapper {
 	public List<MemberDTO> getList();
 	
 	public void register(MemberDTO dto);
+	
+	public void keepLogin(Map<String, Object> map);
+	
+	public MemberDTO getUserSessionId(String sessionId);
 }

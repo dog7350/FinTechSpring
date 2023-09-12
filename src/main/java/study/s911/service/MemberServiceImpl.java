@@ -73,4 +73,18 @@ public class MemberServiceImpl implements MemberService {
 		
 		return map;
 	}
+	
+	@Override
+	public void keepLogin(String sessionId, String id) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("sessionId", sessionId);
+		map.put("id", id);
+		
+		mapper.keepLogin(map);
+	}
+	
+	@Override
+	public MemberDTO getUserSessionId(String sessionId) {
+		return mapper.getUserSessionId(sessionId);
+	}
 }
